@@ -1,0 +1,79 @@
+{% extends 'main.html' %}
+{% block content %}
+<div class="banner">
+    <h1> 
+        MyBooks | Udacity Activity
+    </h1>
+    <div>
+        <a class="btn cold" href="/add-book"> Add + </a>
+    </div>
+</div>
+<ul>
+    {%for book in books %}
+    <li>
+        <div class="book-title">
+            <h3> 
+                {{ book.title }} | {{ book.author }}
+            </h3>
+            {% if book.read == True %}
+            <div>
+                &#10003;
+            </div>
+            {% endif %}
+        </div>
+        <p>type, {{ book.type }} </p>
+        {% if book.read == False %}
+        <div class="book-actions">
+            <button data-id = "{{book.id}}" id = "read_button" class="btn success"> Read </button>
+            <button data-id = "{{book.id}}" class="btn danger"> Delete </button>
+        </div>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+
+<script>
+    // implementing PUT for read
+    const isread_buttons = document.querySelectorAll(".btn.success")
+    console.log(isread_buttons)
+    for ( let i = 0; i < isread_buttons.length; i++){
+        const btn = isread_buttons[i]
+        btn.onclick = function (e){
+            console.log('event', e) // debugging purposes.
+    
+            bookId = e.target.dataset['id'] // getting book id to know which book to update.
+            fetch("/"+bookId+"/book-read",{
+                method: 'PUT',
+                body: null, // We do not need any body, right?
+              //  body: JSON.stringify({
+              //      'read' : 'true'
+              //  }),
+                headers: {
+                    'Content-type': 'application/json'
+                }
+            })
+        }
+   
+    }
+    // implementing DELETE
+    const delete_buttons = document.querySelectorAll(".btn.danger")
+    console.log(delete_buttons)
+    for ( let i = 0; i < delete_buttons.length; i++){
+        const btn = delete_buttons[i]
+        btn.onclick = function (e){
+            console.log('event', e) // debugging purposes.
+            bookId = e.target.dataset['id'] // getting book id to know which book to update.
+            fetch("/"+bookId+"/book-delete",{
+                method: 'DELETE',
+                body: null, // We do not need any body, right?
+                headers: {
+                    'Content-type': 'application/json'
+                }
+            })
+        }
+   
+    }
+
+</script>
+{% endblock %}
+
