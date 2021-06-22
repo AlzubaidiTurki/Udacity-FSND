@@ -681,7 +681,7 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run(DEBUG=True)
+    app.run()
 
 
 # Or specify port manually:
