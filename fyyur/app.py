@@ -180,7 +180,7 @@ def create_venue_form():
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
  
-  error_flag = False
+  
   ''' OLD SOLUTION
   try:
     name = request.get_json()['name']
@@ -209,30 +209,35 @@ def create_venue_submission():
   finally:
     db.session.close()
   '''
+  validation_flag = False
+  error_flag = False
+  form = VenueForm(request.form)
   try:
-    name = request.form['name']
-    city = request.form['city']
-    state = request.form['state']
-    address = request.form['address']
-    phone = request.form['phone']
-    genres = request.form.getlist('genres')
-    facebook_link = request.form['facebook_link']
-    image_link = request.form['image_link']
-    website_link = request.form['website_link']
+    name = form.name.data
+    city = form.city.data
+    state = form.state.data
+    address = form.address.data
+    phone = form.phone.data
+    genres = form.genres.data
+    facebook_link = form.facebook_link.data
+    image_link = form.image_link.data
+    website_link = form.website_link.data
 
-    if request.form.get('seeking_talent') == 'y':
+    if form.seeking_talent.data == 'y':
       seeking_talent = True
     else:
       seeking_talent = False
 
-    seeking_description = request.form['seeking_description']
+    seeking_description = form.seeking_description.data
 
-    venue = Venue(name = name, city = city, state = state, address = address, phone = phone, genres = ", ".join(genres), # Convert list to string.
-    facebook_link = facebook_link, image_link = image_link, website_link = website_link, seeking_talent = seeking_talent,
-    seeking_description = seeking_description)
-
-    db.session.add(venue)
-    db.session.commit()
+    if form.validate():
+      venue = Venue(name = name, city = city, state = state, address = address, phone = phone, genres = ", ".join(genres), # Convert list to string.
+                    facebook_link = facebook_link, image_link = image_link, website_link = website_link, seeking_talent = seeking_talent,
+                     seeking_description = seeking_description)
+      db.session.add(venue)
+      db.session.commit()
+    else:
+      validation_flag = True
 
   except:
     db.session.rollback()
@@ -244,6 +249,8 @@ def create_venue_submission():
 
   if error_flag:
     flash('SORRY! An error occurred. Venue ' + name + ' could not be listed.')
+  elif validation_flag:
+    flash(f'ERROR in form fields, check: \n {form.errors} \n Venue {name} could not be listed.')
   else:
     flash('Venue ' + name + ' was successfully listed!')
 
@@ -369,37 +376,44 @@ def edit_artist(artist_id):
 def edit_artist_submission(artist_id):
 
   artist = Artist.query.get(artist_id)
-  flag = False
 
   if artist is None:
     return redirect(url_for('index'))
-
+  validation_flag = False
+  error_flag = False
+  form = ArtistForm(request.form)
   try:
-    artist.name = request.form['name']
-    artist.city = request.form['city']
-    artist.state = request.form['state']
-    artist.phone = request.form['phone']
-    artist.genres = ", ".join(request.form.getlist('genres'))
-    artist.image_link = request.form['image_link']
-    artist.facebook_link = request.form['facebook_link']
-    artist.webiste_link = request.form['website_link']
-    if request.form.get('seeking_venue') == 'y':
+    artist.name = form.name.data
+    artist.city = form.city.data
+    artist.state = form.state.data
+    artist.phone = form.phone.data
+    artist.genres = form.genres.data
+    artist.facebook_link = form.facebook_link.data
+    artist.image_link = form.image_link.data
+    artist.website_link = form.website_link.data
+    artist.seeking_description = form.seeking_description.data
+
+    if form.seeking_venue.data == 'y':
       artist.seeking_venue = True
     else:
       artist.seeking_venue = False
-    artist.seeking_description = request.form['seeking_description']
-    db.session.commit()
+    
+    if form.validate():
+      db.session.commit()
+    else:
+      validation_flag = True
 
   except:
     db.session.rollback()
-    flag = True
     print('#EDIT ARTIST POST ERROR#', sys.exc_info())
 
-  if flag:
-    flash(f'Error occured. Editing of artist with ID {artist.id} was unsuccessful.')
+  if error_flag:
+    flash('SORRY! An error occurred. Venue ' + form.name.data + ' could not be listed.')
+  elif validation_flag:
+    flash(f'ERROR in form fields, check: \n {form.errors} \n Artist {form.name.data} could not be edited.')
   else:
-    flash(f'Editig of artist with ID {artist.id} was SUCCESSFUL!')
-  
+    flash('Artist ' + form.name.data + ' was successfully edited!')
+
   db.session.close() # it gives me "object out of session" error if i include this stamtent in finally calause
 
   return redirect(url_for('show_artist', artist_id=artist_id))
@@ -429,39 +443,46 @@ def edit_venue(venue_id):
 def edit_venue_submission(venue_id):
 
   venue = Venue.query.get(venue_id)
-  flag = False
   if venue is None:
     return redirect(url_for('index'))
-    
-  try:
-    venue.name = request.form['name']
-    venue.city = request.form['city']
-    venue.state = request.form['state']
-    venue.address = request.form['address']
-    venue.phone = request.form['phone']
-    venue.genres = ", ".join(request.form.getlist('genres'))
-    venue.image_link = request.form['image_link']
-    venue.facebook_link = request.form['facebook_link']
-    venue.webiste_link = request.form['website_link']
 
-    if request.form.get('seeking_talent') == 'y':
+  validation_flag = False
+  error_flag = False
+  form = VenueForm(request.form)
+  try:
+    venue.name = form.name.data
+    venue.city = form.city.data
+    venue.state = form.state.data
+    venue.address = form.address.data
+    venue.phone = form.phone.data
+    venue.genres = form.genres.data
+    venue.facebook_link = form.facebook_link.data
+    venue.image_link = form.image_link.data
+    venue.website_link = form.website_link.data
+
+    if form.seeking_talent.data == 'y':
       venue.seeking_talent = True
     else:
       venue.seeking_talent = False
 
-    venue.seeking_description = request.form['seeking_description']
-    db.session.commit()
+    venue.seeking_description = form.seeking_description.data
+
+    if form.validate():
+      db.session.commit()
+    else:
+      validation_flag = True
 
   except:
     db.session.rollback()
-    flag = True
-    print('#EDIT VENUE  POST ERROR#', sys.exc_info())
+    print('#ERROR POST VENUE#', sys.exc_info())
+    error_flag = True
 
-  if flag:
-    flash(f'Error occured. Editing of artist with ID {venue.id} was unsuccessful.')
+  if error_flag:
+    flash('SORRY! An error occurred. Venue ' + form.name.data + ' could not be listed.')
+  elif validation_flag:
+    flash(f'ERROR in form fields, check: \n {form.errors} \n Venue {form.name.data} could not be listed.')
   else:
-    flash(f'Editig of artist with ID {venue.id} was SUCCESSFUL!')
-  
+    flash('Venue ' + form.name.data + ' was successfully listed!')
   db.session.close() # it gives me "object out of session" error if i include this stamtent in finally calause
 
   return redirect(url_for('show_venue', venue_id=venue_id))
@@ -507,29 +528,33 @@ def create_artist_submission():
     db.session.close()
     return render_template(url_for('index'))
   '''
+  validation_flag = False
   error_flag = False
+  form = ArtistForm(request.form)
   try:
-    name = request.form['name']
-    city = request.form['city']
-    state = request.form['state']
-    phone = request.form['phone']
-    genres = request.form.getlist('genres')
-    facebook_link = request.form['facebook_link']
-    image_link = request.form['image_link']
-    website_link = request.form['website_link']
-    seeking_description = request.form['seeking_description']
+    name = form.name.data
+    city = form.city.data
+    state = form.state.data
+    phone = form.phone.data
+    genres = form.genres.data
+    facebook_link = form.facebook_link.data
+    image_link = form.image_link.data
+    website_link = form.website_link.data
+    seeking_description = form.seeking_description.data
 
-    if request.form.get('seeking_venue') == 'y':
+    if form.seeking_venue.data == 'y':
       seeking_venue = True
     else:
       seeking_venue = False
     
-    artist = Artist(name = name, city = city, state = state, phone = phone, genres = ", ".join(genres), # Convert from list to string.
-    facebook_link = facebook_link, image_link = image_link, website_link = website_link, seeking_venue = seeking_venue,
-    seeking_description = seeking_description)
-
-    db.session.add(artist)
-    db.session.commit()
+    if form.validate():
+      artist = Artist(name = name, city = city, state = state, phone = phone, genres = ", ".join(genres), # Convert from list to string.
+                      facebook_link = facebook_link, image_link = image_link, website_link = website_link, seeking_venue = seeking_venue,
+                      seeking_description = seeking_description)
+      db.session.add(artist)
+      db.session.commit()
+    else:
+      validation_flag = True
 
   except:
     db.session.rollback()
@@ -540,13 +565,13 @@ def create_artist_submission():
     db.session.close()
 
   if error_flag:
-    flash('SORRY! An error occurred. Artist ' + name + ' could not be listed.')
+    flash('SORRY! An error occurred. Venue ' + name + ' could not be listed.')
+  elif validation_flag:
+    flash(f'ERROR in form fields, check: \n {form.errors} \n Artist {name} could not be listed.')
   else:
     flash('Venue ' + name + ' was successfully listed!')
-  
+
   return render_template('pages/home.html')
-
-
 
 
 #  Shows
