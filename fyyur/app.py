@@ -151,6 +151,8 @@ def show_venue(venue_id):
   data['upcoming_shows_count'] = 0
 
   show_time = str() # to put the show in correct list (past_shows or upcoming_Shows)
+  show_artist_records = db.session.query(Show).join(Artist, Artist.id == Show.artist_id).filter(Show.venue_id == venue_id).all()
+  '''
   shows = Show.query.filter(Show.venue_id == venue.id).all()
   for show in shows:
     if show.start_time >= datetime.datetime.now():
@@ -161,6 +163,19 @@ def show_venue(venue_id):
       'artist_id': show.artist_id,
       'artist_name': Artist.query.get(show.artist_id).name,
       'artist_image_link': Artist.query.get(show.artist_id).image_link,
+      'start_time': str(show.start_time)
+    })
+  '''
+  show_artist_records = db.session.query(Show).join(Artist, Artist.id == Show.artist_id).filter(Show.venue_id == venue_id).all()
+  for show in show_artist_records:
+    if show.start_time >= datetime.datetime.now():
+      show_time = 'upcoming_shows'
+    else:
+      show_time = 'past_shows'
+    data[show_time].append({
+      'artist_id': show.artist.id,
+      'artist_name': show.artist.name,
+      'artist_image_link': show.artist.image_link,
       'start_time': str(show.start_time)
     })
 
