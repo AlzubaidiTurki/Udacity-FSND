@@ -1,327 +1,198 @@
-## Udacity Activity Week#1
 
 
-### About Flask
+## Udacity Activity Week#2 <img src="https://user-images.githubusercontent.com/12359091/122653726-44b0ef80-d14f-11eb-8849-1cd70624aae5.png" width="20">
 
-Flask is a highly used Python micro Web Framework. It provides basic functionality to build web applications, like routing, request/response handling, etc. It's a "small" framework compared to other ones (like Django), but in many cases that's a great advantage.
-
-
+this project is built as activity in for the Full Stack Nanodegree. Students are required to complete the requirments to build the backend of this app using flask & SQLAlchemy. the focus of this activity is to give students more practicing of the SQLAlchemy ORM Qeury API. 
 
 
-### Requirements & Setup
+### about the acitivty 
+this is an Applee Fitness+ App Clone. user can review his activity details (daily activity, workout history)  and start a new workout. he also can review his competitions with other users. calculating the calories is fake also the heart beats. it's just an illustration of how Fitness could look like through the web. 
 
 
-Let us create our first Flask Application project by creating a folder :
+## setup 
+1. make sure you have python to run the app. 
+2. install the dependencies required by running `pip3 install -r requirements.txt` 
+3. create a postgres database for the app by doing the following: 
+    - `sudo -u postgres -i` 
+    - `createdb udacity-sqlalchemy-activity;`
+    - `exit`
+4. make sure you have the same name or else you need to update the `config.py` file with your database name. 
+5. start migrating the models you have in `models.py` by doing the following: 
+    - `pip3 install flask_migrate`
+    - `flask db init`
+    - `flask db migrate`
+    - `flask db upgrade`
+    now you have the database with the tables created, now we need to add data to it.
+6. run the `seeder.py` file to fill the database with the dummy data that has been created in the seeder. 
+    to run it you just need to do `pythoon3 seeder.py`
+
+Now you have the database filled with data and ready to execute the app by running the following : 
+    - `export FLASK_APP=app`
+    - `export DEBUG_MODE=True`
+    - `flask run`
+
+now you can test the app and navigate through it to have an idea of how it works!! 
+
+
+### review 
+let's start with showing the project strucure : 
+.
+```
++-- static
+|   +-- icons 
+|   +-- style.css
++-- templates
+|   +-- add-activity.html
+|   +-- home.html
+|   +-- main.html
++-- config.py
++-- models.py
++-- requirements.py
++-- seeder.py
++-- README.md
+```
+let's go through the models and check what we have so far. starting with the `user` model:  
 
 ```
-mkdir flask-activity
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    dob = Column(DateTime, default=datetime.datetime.utcnow)
+    blod = Column(String)
+    health = Column(String)
+    water = Column(String)
+    moveGoal = Column(Integer)
+    excersiceGoal = Column(Integer)
+    standGoal = Column(Integer)
+
+
+    def __init__(self, name, dob, blod, health, water, moveGoal, excersiceGoal, standGoal):
+        self.name = name
+        self.dob = dob
+        self.blod = blod
+        self.health = health
+        self.water = water
+        self.moveGoal = moveGoal
+        self.excersiceGoal = excersiceGoal
+        self.standGoal = standGoal
+
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+    def format(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'blod': self.blod,
+            'health': self.health,
+            'water': self.water,
+            'moveGoal': self.moveGoal,
+            'excersiceGoal': self.excersiceGoal,
+            'standGoal': self.standGoal,
+        }
+
+``` 
+
+as you can see, user has basic data, what we want to look at is the `moveGoal, excersiceGoal and standGoal`. each user should have these data so we will be able to calculate his activity. we also have the inserting, updating and deleting functions already setup. format is helpful we want to return the object, we don't need to explicitly format it, we can use format unless we need to filter some data before returning the response. 
+
+
+now let's go and check the `workout` model : 
+
+```
+class Workout(db.Model):
+    __tablename__ = 'workouts'
+
+    id = Column(Integer, primary_key=True)
+    type = Column(String)
+    icon = Column(String)
+    totalTime = Column(String)
+    totalCal = Column(String)
+    activeCal = Column(Integer)
+    heart = Column(Integer)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    def __init__(self, type, icon, totalTime, totalCal, activeCal, heart, created_at):
+        self.type = type
+        self.icon = icon
+        self.totalTime = totalTime
+        self.totalCal = totalCal
+        self.activeCal = activeCal
+        self.heart = heart
+        self.created_at = created_at
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'icon': self.icon,
+            'totalTime': self.totalTime,
+            'totalCal': self.totalCal,
+            'activeCal': self.activeCal,
+            'heart': self.heart,
+            'created_at': timeago.format(self.created_at, now)
+        }
+
 ```
 
 
-create a database using psql: 
-
-```
-sudo -u postgres -i
-createdb flask-activity;
-exit;
-```
+what we are intrested to have for each workout is the icon representing the workout, which is already there in the static folder. all we need to do is the path of the icon. the totla time spent doing the workout which is already been calculated by the frontend, your job is just to store it and show it along with the totalCal, the activeCal and the heart beats which are calculated randomly. 
 
 
-create requirements.txt  for dependencies :
-```
-touch requirements.txt
-```
-
-add the following: 
-```
-babel==2.9.0
-python-dateutil==2.6.0
-flask-moment==0.11.0
-flask_sqlalchemy==2.4.4
-```
 
 
-create config.py   :
-```
-touch config.py
-open config.py
-```
+### Note : altough we have users, there's no need to create a login/registraion system. it's a lightweight project but you have to stick to one user through the application and apply all the requiremnts on it
 
- add the following:
-```
-import os
-SECRET_KEY = os.urandom(32)
-# Grabs the folder where the script runs.
-basedir = os.path.abspath(os.path.dirname(__file__))
+## requirments 
+- [ ] user and workout models are not related, you need to add a one to many relationship between them and run the migration again to update it with  the new structure, don't forget to reflect this change on the seeder file. 
+- [ ] the user can create a new workout, the frontend is ready to send the requiest and all you have to do is doing the actual creation in the database. 
+- [ ] the user should be able to review the following in the home page : 
+    - his workouts history
+    - one workout details through the `workout viewer`. ( meaning that it's alway gonna be a workout to review, if the user didn't pick one.. you return the first one in the database by default)
+    - his competitions ( not included in this version but you can check it out in the solution branch after you finish the one)
+    - his personal data
+    - his daily activity showing today's activity ( how much the user moved, exercised and stand ) along with the percentage of achivement based on the user daily goal. the frontend is expecting this structure : 
 
-# Enable debug mode.
-DEBUG = True
+    ```
+    dailyActivity = {
+        'move': {'cals', 0, 'percentage': 0},
+        'excercise': {'cals', 0, 'percentage': 0}
+        'stand': {'cals', 0, 'percentage': 0}
+    }
+    ```
 
-# Connect to the database
-
-
-# TODO IMPLEMENT DATABASE URL
-SQLALCHEMY_DATABASE_URI = 'postgresql://username:password@localhost:5432/flask-activity'
-```
-create app.py  :
-
-```
-touch app.py
-```
-add the following: 
-
-```
-from flask import Flask, render_template
-
-app = Flask(__name__)
-app.config.from_object('config')
-
-
-@app.route('/')
-def index():
-    return render_template('my-books.html', books=[ 
-        {
-            'title': 'A Mind for Numbers',
-            'author': 'Barbara Oakley',
-            'type': 'Science',
-            'read': True
-        },
-        {
-            'title': 'Designing Your Life',
-            'author': 'Bill Burnett, Dave Evans',
-            'type': 'Life',
-            'read': True
-        },
-        {
-            'title': 'A Breif History of Time',
-            'author': 'Stephen Hawking',
-            'type': 'Science',
-            'read': False
-        }])
-# TODO: implment a GET request to fetch all books
-
-@app.route('/add-book')
-def addBook():
-    return render_template('add-book.html')
+    so as you see it's a huge endpoint! but you can do it! use the Query API to fetch all those and return them in the home page. 
     
-# TODO: implment a POST request of adding a book 
-# TODO: implment a PUT request to mark the book as read
-# TODO: implment a Delete request to delete a book
-
-# Default port:
-if __name__ == '__main__':
-    app.run(debug=True)
-```
-create folder named templates:
-
-```
-mkdir templates
-touch main.html
-touch my-books.html
-touch add-book.html
-```
-main.html 
-
-```
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <link type="text/css" rel="stylesheet" href="static/style.css">
-        <link rel="preconnect" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@100&display=swap" rel="stylesheet">
-        <!-- /meta -->
-        <title>
-            MyBooks | Udacity Activity
-        </title>
-    </head>
-    <body>
-        {% block content %}{% endblock %}
-    </body>
-</html>
-```
-my-books.html
-
-```
-{% extends 'main.html' %}
-{% block content %}
-<div class="banner">
-    <h1> 
-        MyBooks | Udacity Activity
-    </h1>
-    <div>
-        <a class="btn cold" href="/add-book"> Add + </a>
-    </div>
-</div>
-<ul>
-    {%for book in books %}
-    <li>
-        <div class="book-title">
-            <h3> 
-                {{ book.title }} | {{ book.author }}
-            </h3>
-            {% if book.read == True %}
-            <div>
-                &#10003;
-            </div>
-            {% endif %}
-        </div>
-        <p>type, {{ book.type }} </p>
-        {% if book.read == False %}
-        <div class="book-actions">
-            <button class="btn success"> Read </button>
-            <button class="btn danger"> Delete </button>
-        </div>
-        {% endif %}
-    </li>
-    {% endfor %}
-</ul>
-{% endblock %}
-```
-
-
-add-book.html
-
-```
-{% extends 'main.html' %}
-{% block content %}
-<form action="" method="post">
-    <div class="form-input">
-        <label> Book Title: </label>
-        <input type="text" name="title" />
-    </div>
-    <div class="form-input">
-        <label> Book Author Name: </label>
-        <input type="text" name="author" />
-    </div>
-    <div class="form-input">
-        <label> Book Type: </label>
-        <input type="text" name="type" />
-    </div>
-    <button type="submit" class="btn cold float-right"> Add + </button>
-</form>
-{% endblock %}
-```
-
-
-create static folder :
-```
-mkdir static
-```
-
-create style.css
-```
-touch style.css
-```
-
-add the following: 
-```
-body {
-    background-color: #14141c;
-    color: white;
-    font-family: 'M PLUS Rounded 1c', sans-serif;
-    margin: 20%;
-}
-
-ul {
-    list-style-type: none;
-}
-
-li {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 1rem;
-    padding: 0.3rem;
-    margin: 0.3rem;
-}
-
-form {
-    width: 60%;
-}
-
-input {
-    padding: 0.5rem !important;
-    border-radius: 0.5rem !important;
-}
-
-a {
-    color: white;
-    text-decoration: none;
-}
-
-
-.banner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.btn {
-    border-radius: 0.5rem;
-    border: none;
-    padding: 0.5rem;
-    margin: 0.5rem;
-    color: white;
-}
-
-.success {
-    background-color: #677565;
-}
-
-.danger {
-    background-color: #A88B99;
-}
-
-.cold {
-    background-color: #596C7F;
-}
-
-.book-title {
-    display: flex;
-    align-items: center;
-}
-
-.float-right {
-    float: right;
-}
-
-.form-input {
-    justify-content: space-between;
-    display: flex;
-}
-```
-start with installing the dependencies : 
-
-```
-pip3 install -r requirements.txt
-```
-run the application : 
-
-```
-export FLASK_APP=app
-flask run
-```
-
-
-### Requirements : 
-
-
-go through al the TODOs in the app.py  file and implement it, which are the following : 
-- [ ] with the help of the dummy data in the index function, create the models needed to make this application functioning. 
-- [ ] refactor index function to return an actual data from the database.
-- [ ] create a POST request method to add a new book .
-- [ ] create a PUT request method to mark a book as read
-- [ ] create a DELETE request to delete a book from the list. 
-
-
-
-this is how it should look like after implmenting the requirments : 
-
-![Screen Shot 2021-06-21 at 9 50 53 AM](https://user-images.githubusercontent.com/12359091/122719023-517c3300-d276-11eb-9233-6edcbc154fe7.png)
-
-adding a book form: 
-
-![Screen Shot 2021-06-21 at 9 50 58 AM](https://user-images.githubusercontent.com/12359091/122719079-6062e580-d276-11eb-8a55-637d90cfa909.png)
-
-
+    
+    
+    this is how our app gonna look like if we apply our changes + the competition feature which is exist in the `solution` branch! 
+    ### the home page : 
+    ![Screen Shot 2021-06-19 at 2 24 21 PM](https://user-images.githubusercontent.com/12359091/122653273-488f4280-d14c-11eb-8849-e3be9e2e78df.png)
+    
+    
+    
+    ### starting a workout page
+    ![Screen Shot 2021-06-19 at 2 03 47 PM](https://user-images.githubusercontent.com/12359091/122653271-46c57f00-d14c-11eb-850f-d40758b4ab5f.png)
