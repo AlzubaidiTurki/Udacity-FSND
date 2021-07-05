@@ -45,20 +45,8 @@ class UniversityTestCase(unittest.TestCase):
         self.courses_count = Course.query.count()
         self.formmated_courses = [course.format() for course in Course.query.all()]
 
-    # in json, created_at key always on top, this function makes everything propoer
-    def getOrderedDict(data):
-        
-        created_at = data['course']['created_at']
-        ordered_dict = OrderedDict()
-        ordered_dict['created_at'] = created_at
-        del data['course']['created_at']
-
-        for key, value in data.items():
-            ordered_dict[key] = value
-
-        return ordered_dict
-        
-
+    
+    
     def tearDown(self):
         """Executed after reach test"""
         pass
