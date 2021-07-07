@@ -6,6 +6,9 @@ import random
 
 from models import setup_db, Question, Category
 
+# $env:FLASK_APP=app.py
+# $env:FLASK_ENV = "development"
+
 QUESTIONS_PER_PAGE = 10
 
 def create_app(test_config=None):
