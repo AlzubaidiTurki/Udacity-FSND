@@ -39,6 +39,8 @@ class Workout(db.Model):
     activeCal = Column(Integer)
     heart = Column(Integer)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    
 
     def __init__(self, type, icon, totalTime, totalCal, activeCal, heart, created_at):
         self.type = type
@@ -97,6 +99,7 @@ class User(db.Model):
     moveGoal = Column(Integer)
     excersiceGoal = Column(Integer)
     standGoal = Column(Integer)
+    workouts = relationship('Workout', backref = 'user')
 
 
     def __init__(self, name, dob, blod, health, water, moveGoal, excersiceGoal, standGoal):

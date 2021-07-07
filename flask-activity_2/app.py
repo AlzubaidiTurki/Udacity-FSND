@@ -4,6 +4,8 @@ from models import  setup_db, Workout, User
 from sqlalchemy.orm import load_only, joinedload
 from datetime import date
 import math
+# $env:FLASK_APP=app.py
+# $env:FLASK_ENV = "development"
 
 # helpful instructions
 # You can use the with_entities() method to restrict which columns you'd like to return in the result.

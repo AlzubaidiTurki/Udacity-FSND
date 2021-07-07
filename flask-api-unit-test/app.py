@@ -243,6 +243,18 @@ def create_app():
             'success': True,
             'professor': professor.format(),
         })
+    @app.route('/courses/search', methods = ['POST'])
+    def searchCourse():
+        course_name = request.get_json()
+        try:
+            course  = Course.query.filter_by(name = course_name['name']).first()
+        except:
+            print(sys.exc_info())
+            abort(500)
+        return jsonify({
+            'success' : True,
+            'name' : course.name
+        })
 
     @app.route('/professors/<int:professor_id>', methods=['PUT'])
     def updateProfessor(professor_id):

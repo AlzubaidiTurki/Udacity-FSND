@@ -51,7 +51,7 @@ class UniversityTestCase(unittest.TestCase):
         """Executed after reach test"""
         pass
 
-    
+    '''
     def test_get_all(self):
         """Test _____________ """
         res = self.client().get('/courses')
@@ -107,6 +107,12 @@ class UniversityTestCase(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(data['message'], 'resource not found')
         self.assertEqual(res.status_code, 404)
+    '''
+    def test_valid_search(self):
+        res = self.client().post('/courses/search', json = {'name':'man\'s search for meaning'})
+        data = json.loads(res.data)
+        course = Course.query.filter_by(name = data['name']).first()
+        self.assertAlmostEqual(data['name'], course.name)
     
 
 
