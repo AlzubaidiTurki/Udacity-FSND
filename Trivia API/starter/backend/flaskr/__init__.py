@@ -36,7 +36,8 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
-  number of total questions, current category, categories. 
+  number of total questions, current category, categories.
+  
 
   TEST: At this point, when you start the application
   you should see questions and categories generated,
