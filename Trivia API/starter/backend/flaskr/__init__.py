@@ -37,6 +37,7 @@ def create_app(test_config=None):
       'categories': {category.id: category.type for category in Category.query.all()} #list of categories
     })
 
+
   @app.route('/api/questions', methods = ['GET'])
   def get_all_questions():
 
@@ -72,6 +73,7 @@ def create_app(test_config=None):
     if 'searchTerm' in body:
       searchTerm = body['searchTerm']
       print(f'Search term is not none, it is {searchTerm}')
+      
       if searchTerm == "":
         questions = Question.query.all()
       else:
@@ -100,40 +102,34 @@ def create_app(test_config=None):
 
   @app.route('/api/categories/<int:category_id>/questions', methods = ['GET'])
   def get_questions_by_category(category_id):
-    questions = Question.query.filter_by(category = category_id).all()
-    print(f'yata65 question is none? {questions is None}')
-    if len(questions) < 1:
+    category = Category.query.get(category_id)
+    if category is None: #category does not exist
       abort(404)
     else:
-      return jsonify({
+      questions = Question.query.filter_by(category = category_id).all() #if that category has no questions, will send empty list.
+
+    return jsonify({
       'success' : True,
       'questions': [question.format() for question in questions],
       'totalQuestions': len(questions),
       'currentCategory': Category.query.get(category_id).type
     })
 
-
-  '''
-  @TODO: 
-  Create a POST endpoint to get questions to play the quiz. 
-  This endpoint should take category and previous question parameters 
-  and return a random questions within the given category, 
-  if provided, and that is not one of the previous questions. 
-
-  TEST: In the "Play" tab, after a user selects "All" or a category,
-  one question at a time is displayed, the user is allowed to answer
-  and shown whether they were correct or not. 
-  '''
   @app.route('/api/quizzes', methods = ['POST'])
   def quizzes():
     body = request.get_json()
     previousQuestions = body.get('previous_questions')
     quizCategory = body.get('quiz_category')
-    
-  
+    if quizCategory['id'] == 0:
+      questions_count = Question.query.count()
+    else:
+      questions_count = Question.query.filter_by(category = quizCategory['id'] ).count()
+
+    print(f'yata132, count = {questions_count}')
+
     existed_categories = [str(question.category) for question in Question.query.all()]
     
-    if len(previousQuestions) == Question.query.count() or (quizCategory['id'] not in existed_categories and quizCategory['id'] != 0): # All questions has been shown or there are no questions for that category.
+    if len(previousQuestions) == questions_count: # or (quizCategory['id'] not in existed_categories and quizCategory['id'] != 0): # All questions has been shown or there are no questions for that category.
       print(f'yata99 existed_categories = {existed_categories}, cat_id {quizCategory["id"]}, count = {Question.query.count()}')
       return jsonify({
         'success': True,
@@ -143,23 +139,19 @@ def create_app(test_config=None):
     question = None
     
     while True:
-      if question is not None and question.category not in previousQuestions:
-        #print(f'yata120 previousQuestions = {previousQuestions} \n question = {question.format()}')
+      if question is not None and question.id not in previousQuestions:
         break
       else:
         if quizCategory['id'] == 0:
-          question = Question.query.offset(int(Question.query.count() * random.random())).first()
+          question = Question.query.offset(int(Question.query.count() * random.random())).first() #random question.
         else:
-          question = Question.query.filter_by(category = quizCategory['id']).offset(int(Question.query.count() * random.random())).first()
+          question = Question.query.filter_by(category = quizCategory['id']).offset(int(Question.query.count() * random.random())).first() #random question.
 
     
-
-    print(f'yata120 previousQuestions = {previousQuestions} \n question = {question.format()}')
     return jsonify ({
       'success': True,
       'question': question.format()
     })
-    pass
 
 
   @app.errorhandler(404)
@@ -201,9 +193,6 @@ def create_app(test_config=None):
       'message': 'bad request'
     }), 400
 
-
-
-  
   return app
 
     
