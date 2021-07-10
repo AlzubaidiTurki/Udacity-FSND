@@ -116,6 +116,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['error'], 404)
         self.assertEqual(res.status_code, 404)
     def test_valid_answer (self): 
+        pass
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

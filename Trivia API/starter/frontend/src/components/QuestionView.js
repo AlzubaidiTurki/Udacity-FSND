@@ -19,25 +19,31 @@ class QuestionView extends Component {
 
   componentDidMount() {
     this.getQuestions();
+    console.log('Page', this.state.page);
   }
+
+
 
   getQuestions = () => {
     $.ajax({
-      url: `/questions?page=${this.state.page}`, //TODO: update request URL
+      url: `/api/questions?page=${this.state.page}`, //TODO: update request URL
       type: "GET",
       success: (result) => {
+        console.log('result = ', result )
         this.setState({
+
           questions: result.questions,
-          totalQuestions: result.total_questions,
+          totalQuestions: result.totalQuestions,
           categories: result.categories,
-          currentCategory: result.current_category })
+          currentCategory: result.currentCategory })
+        
         return;
       },
       error: (error) => {
         alert('Unable to load questions. Please try your request again')
         return;
       }
-    })
+    }) 
   }
 
   selectPage(num) {
@@ -55,12 +61,14 @@ class QuestionView extends Component {
           onClick={() => {this.selectPage(i)}}>{i}
         </span>)
     }
+    console.log('page numbers', pageNumbers)
+    console.log('total questions', this.state.totalQuestions)
     return pageNumbers;
   }
 
   getByCategory= (id) => {
     $.ajax({
-      url: `/categories/${id}/questions`, //TODO: update request URL
+      url: `/api/categories/${id}/questions`, //TODO: update request URL
       type: "GET",
       success: (result) => {
         this.setState({
@@ -78,7 +86,7 @@ class QuestionView extends Component {
 
   submitSearch = (searchTerm) => {
     $.ajax({
-      url: `/questions`, //TODO: update request URL
+      url: `/api/questions`, //TODO: update request URL
       type: "POST",
       dataType: 'json',
       contentType: 'application/json',
@@ -105,12 +113,14 @@ class QuestionView extends Component {
     if(action === 'DELETE') {
       if(window.confirm('are you sure you want to delete the question?')) {
         $.ajax({
-          url: `/questions/${id}`, //TODO: update request URL
+          url: `/api/questions/${id}`, //TODO: update request URL
           type: "DELETE",
           success: (result) => {
             this.getQuestions();
+            console.log('result' + result)
           },
           error: (error) => {
+            console.log('ERROR' + error)
             alert('Unable to load questions. Please try your request again')
             return;
           }
