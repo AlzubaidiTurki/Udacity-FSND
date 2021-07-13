@@ -66,7 +66,10 @@ def create_app(test_config=None):
 
   @app.route('/api/questions', methods = ['POST'])
   def add_question():
+    print(f'yata122 {request.get_data}')
     body = request.get_json()
+    print(f'yata123 {body}')
+
     if body is None:
       abort(400)
 
