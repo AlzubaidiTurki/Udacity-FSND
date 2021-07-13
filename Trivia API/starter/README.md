@@ -103,3 +103,5 @@ To run the app. for the backend run: `flask run`, and `npm start` for the fronte
   "totalQuestions": 2
 }
 `
+# Acknowledgemnt
+I would like to thank my mentor Mashael for always support us, her students. I would also thank my colleagues Saud and Najla for helping me discovring few bugs.
