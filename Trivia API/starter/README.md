@@ -103,31 +103,3 @@ To run the app. for the backend run: `flask run`, and `npm start` for the fronte
   "totalQuestions": 2
 }
 `
-### POST /api/questions
-* Add new question in the database, or search for a question if 'SearchTerm' is provided.
-* Example `curl http://127.0.0.1:5000/api/categories/2/questions`\
-\
-`
-"questions": [
-{
-  "currentCategory": "Art",
-  "questions": [
-    {
-      "answer": "the office",
-      "category": 2,
-      "difficulty": 5,
-      "id": 48,
-      "question": "what is the BEST sitcom show?"
-    },
-    {
-      "answer": "Jackson Pollock",
-      "category": 2,
-      "difficulty": 2,
-      "id": 19,
-      "question": "Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?"
-    }
-  ],
-  "success": true,
-  "totalQuestions": 2
-}
-`
