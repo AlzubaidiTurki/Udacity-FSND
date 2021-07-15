@@ -27,7 +27,7 @@ DB_USER
 `
 DB_PASSWORD
 `
-if any of these variables does not exist, a defualt value will be assigned, and they are:
+if any of these variables does not exist, a defualt value will be assigned, and they are:\
 `
 DB_HOST = '127.0.0.1:5432'
 `
@@ -35,7 +35,7 @@ DB_HOST = '127.0.0.1:5432'
 DB_USER = 'postgres'
 `
 `
-DB_PASSWORD 'postgres'
+DB_PASSWORD = 'postgres'
 `
 ### Local Development
 When working localy, IP should be 'localhost', and on backend directory, run the following (on Windows)\
