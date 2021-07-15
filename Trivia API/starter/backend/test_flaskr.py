@@ -79,7 +79,6 @@ class TriviaTestCase(unittest.TestCase):
             questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).all()
         
         questions_formatted = [question.format() for question in questions]
-        print(f'question = {questions_formatted}')
         self.assertTrue(data['success'])
         self.assertEquals(data['questions'], questions_formatted)
         self.assertEquals(data['totalQuestions'], len(questions))
@@ -118,10 +117,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'not found')
         self.assertEqual(data['error'], 404)
         self.assertEqual(res.status_code, 404)
-    def test_valid_answer (self): #no testing here for '/api/quizzes', becuase the frontend actually handles the answers, which is bad. but this is how it was coded.
-                                  #am i right? or maybe i dont know how to perfom test well yey.
-        pass
-
+        
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()

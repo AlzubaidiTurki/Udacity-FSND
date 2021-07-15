@@ -33,7 +33,7 @@ def create_app(test_config=None):
   def index():
     return redirect(url_for('get_all_questions'))
    
-   
+
   @app.route('/api/categories', methods = ['GET'])
   def get_categories():
     return jsonify({
@@ -70,9 +70,8 @@ def create_app(test_config=None):
 
   @app.route('/api/questions', methods = ['POST'])
   def add_question():
-    print(f'yata122 {request.get_data}')
+
     body = request.get_json()
-    print(f'yata123 {body}')
 
     if body is None:
       abort(400)
@@ -132,12 +131,9 @@ def create_app(test_config=None):
     else:
       questions_count = Question.query.filter_by(category = quizCategory['id'] ).count()
 
-    print(f'yata132, count = {questions_count}')
-
     existed_categories = [str(question.category) for question in Question.query.all()]
     
     if len(previousQuestions) == questions_count: # or (quizCategory['id'] not in existed_categories and quizCategory['id'] != 0): # All questions has been shown or there are no questions for that category.
-      print(f'yata99 existed_categories = {existed_categories}, cat_id {quizCategory["id"]}, count = {Question.query.count()}')
       return jsonify({
         'success': True,
         'question': None
@@ -152,7 +148,7 @@ def create_app(test_config=None):
         if quizCategory['id'] == 0:
           question = Question.query.offset(int(Question.query.count() * random.random())).first() #random question.
         else:
-          question = Question.query.filter_by(category = quizCategory['id']).offset(int(Question.query.count() * random.random())).first() #random question.
+          question = Question.query.filter_by(category = quizCategory['id']).offset(int(Question.query.count() * random.random())).first() #random question from a specific category.
 
     
     return jsonify ({
