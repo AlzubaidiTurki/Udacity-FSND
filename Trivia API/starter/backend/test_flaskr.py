@@ -14,9 +14,12 @@ class TriviaTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app()
         self.client = self.app.test_client
-        self.database_name = "trivia"
-        self.database_path = "postgresql://{}:{}@{}/{}".format('postgres',' ','localhost:5432', self.database_name)
-        setup_db(self.app, self.database_path)
+        self.DB_HOST = os.getenv('DB_HOST', '127.0.0.1:5432')  
+        self.DB_USER = os.getenv('DB_USER', 'postgres')  
+        self.DB_PASSWORD = os.getenv('DB_PASSWORD', 'postgres')  
+        self.DB_NAME = os.getenv('DB_NAME', 'trivia')  
+        self.DB_PATH = 'postgresql+psycopg2://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASSWORD, self.DB_HOST, self.DB_NAME)
+        setup_db(self.app, self.DB_PATH)
 
         # binds the app to the current context
         with self.app.app_context():
@@ -32,10 +35,13 @@ class TriviaTestCase(unittest.TestCase):
     def test_valid_paginated(self):
         res = self.client().get('/api/questions')
         data = json.loads(res.data)
-        #categories = {category.id: category.type for category in Category.query.all()} something weird in this statement's output.. really weird..
+        categories = {category.id: category.type for category in Category.query.all()}
+        self.assertEqual(data['categories'], categories) #something weird happens in this test it shows:
+                                                        #AssertionError: {'1': 'Science', '2': 'Art', '3': 'Geograp[52 chars]rts'} != {1: 'Science', 2: 'Art', 3: 'Geography', 4[40 chars]rts'}
         self.assertTrue(data['success'])
         self.assertGreater(data['totalQuestions'], 1)
         self.assertEqual(res.status_code, 200)
+    
 
 
     def test_invalid_paginated(self):
