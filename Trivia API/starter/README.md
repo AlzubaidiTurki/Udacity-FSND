@@ -17,14 +17,26 @@ npm install
 `
 (after installation, you will see some vulnerabilities, you should then run `npm audit fix`, and you can ignore the rest of vulnerabilities after that run.)
 ### Linking Database
-you can link your own database from models.py (not the best practice I know, sorry for that.) in line 6 and 7, simply: \
+you can link your own database by making envoirment variables using these nams: \
 `
-database_name = "<your database name>"
-`\
+DB_HOST
 `
-database_path = "postgresql://{}:{}@{}/{}".format('<username>','<username's password>','<IP:port>', database_name)
-`\
-when working localy, IP should be 'localhost'
+`
+DB_USER
+`
+`
+DB_PASSWORD
+`
+if any of these variables does not exist, a defualt value will be assigned, and they are:
+`
+DB_HOST = '127.0.0.1:5432'
+`
+`
+DB_USER = 'postgres'
+`
+`
+DB_PASSWORD 'postgres'
+`
 ### Local Development
 When working localy, IP should be 'localhost', and on backend directory, run the following (on Windows)\
 `
