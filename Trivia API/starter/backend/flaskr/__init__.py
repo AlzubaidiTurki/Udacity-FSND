@@ -29,7 +29,11 @@ def create_app(test_config=None):
     return response
 
 
-
+  @app.route('/')
+  def index():
+    return redirect(url_for('get_all_questions'))
+   
+   
   @app.route('/api/categories', methods = ['GET'])
   def get_categories():
     return jsonify({
@@ -51,7 +55,7 @@ def create_app(test_config=None):
       'categories': {category.id: category.type for category in Category.query.all()},
       'currentCategory': None
     })
-  
+ 
   @app.route('/api/questions/<int:question_id>', methods = ['DELETE'])
   def delete_questions(question_id):
     try:
