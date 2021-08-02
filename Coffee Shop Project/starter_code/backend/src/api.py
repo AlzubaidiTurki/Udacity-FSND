@@ -87,11 +87,15 @@ def patch_drink(_, drink_id):
 
     data = request.get_json()
     title = data['title']
-    recipe = json.dumps(data['recipe'])
+    flag = False
+    if 'recipe' in data:
+        flag = True
+        recipe = json.dumps(data['recipe'])
 
     try:
         drink.title = title
-        drink.recipe = recipe
+        if flag:
+            drink.recipe = recipe
     except:
         print(f'yata_patch_drink ERROR {sys.exc_info()}')
         db.session.rollback()

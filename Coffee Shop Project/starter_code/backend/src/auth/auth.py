@@ -4,7 +4,7 @@ from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
 
-AUTH0_DOMAIN = 'dev-samsnj-3.us.auth0.com'
+AUTH0_DOMAIN = 'fsnd-yatagarsu.us.auth0.com'
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'coffee'
 
@@ -63,7 +63,7 @@ def check_permissions(permission, payload):
         raise AuthError({
                 'code': 'method_not_allowed',
                 'description': 'permission not allowed or found.'
-            }, 403)
+            }, 401)
     else:
         print(f'yata_true')
         return True
