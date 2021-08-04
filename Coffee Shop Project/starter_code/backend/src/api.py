@@ -17,35 +17,32 @@ setup_db(app)
 CORS(app)
 
 
-#db_drop_and_create_all()
+# db_drop_and_create_all()
 
 # ROUTES
-@app.route('/drinks', methods = ['GET'])
+@app.route('/drinks', methods=['GET'])
 def get_drinks():
-    
     try:
-        drinks = Drink.query.all()  
+        drinks = Drink.query.all()
 
-    except:
+    except Exception:
         print(f'yata_get_drinks ERROR {sys.exc_info()}')
         abort(500)
-    
     drinks_short = [drink.short() for drink in drinks]
-    
     return jsonify({
         'success': True,
         'drinks': drinks_short
     })
-    
 
-@app.route('/drinks-detail', methods = ['GET'])
+
+@app.route('/drinks-detail', methods=['GET'])
 @requires_auth('get:drinks-detail')
 def get_drinks_detail(_):
     try:
         drinks = Drink.query.all()
-    except:
+    except Exception:
         print(f'yata_get_drinks_detail ERROR {sys.exc_info()}')
-        abort(500) #Internal server error
+        abort(500)
 
     drinks_long = [drink.long() for drink in drinks]
 
@@ -55,7 +52,7 @@ def get_drinks_detail(_):
     })
 
 
-@app.route('/drinks', methods = ['POST'])
+@app.route('/drinks', methods=['POST'])
 @requires_auth('post:drinks')
 def post_drink(_):
     data = request.get_json()
@@ -63,20 +60,19 @@ def post_drink(_):
     recipe = json.dumps(data['recipe'])
 
     try:
-        drink = Drink (title= title, recipe = recipe)
+        drink = Drink(title=title, recipe=recipe)
         drink.insert()
-    except:
+    except Exception:
         print(f'yata_post_drink ERROR {sys.exc_info()}')
         db.session.rollback()
-        abort(500)
-    
+        abort(201)
     return jsonify({
         'success': True,
         'drinks': [drink.long()]
     })
 
 
-@app.route('/drinks/<int:drink_id>', methods = ['PATCH'])
+@app.route('/drinks/<int:drink_id>', methods=['PATCH'])
 @requires_auth('patch:drinks')
 def patch_drink(_, drink_id):
 
@@ -96,7 +92,7 @@ def patch_drink(_, drink_id):
         drink.title = title
         if flag:
             drink.recipe = recipe
-    except:
+    except Exception:
         print(f'yata_patch_drink ERROR {sys.exc_info()}')
         db.session.rollback()
         abort(500)
@@ -107,25 +103,24 @@ def patch_drink(_, drink_id):
     })
 
 
-@app.route('/drinks/<int:drink_id>', methods = ['DELETE'])
+@app.route('/drinks/<int:drink_id>', methods=['DELETE'])
 @requires_auth('delete:drinks')
 def delete_drink(_, drink_id):
     drink = Drink.query.get(drink_id)
 
     if drink is None:
         abort(404)
-    
     try:
         drink.delete()
-    except:
+    except Exception:
         db.session.rollback()
         print(f'yata_delete_drink ERROR {sys.exc_info()}')
         abort(500)
-    
     return jsonify({
         'success': True,
         'delete': drink.id
     })
+
 
 # Error Handling
 @app.errorhandler(422)
@@ -136,6 +131,7 @@ def unprocessable(error):
         "message": "unprocessable"
     }), 422
 
+
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({
@@ -144,6 +140,7 @@ def not_found(error):
         "message": "resource not found"
     }), 404
 
+
 @app.errorhandler(500)
 def not_found(error):
     return jsonify({
@@ -151,6 +148,16 @@ def not_found(error):
         "error": 500,
         "message": "Internal Server Error"
     }), 500
+
+
+@app.errorhandler(201)
+def not_found(error):
+    return jsonify({
+        "success": False,
+        "error": 201,
+        "message": "Created"
+    }), 201
+
 
 @app.errorhandler(AuthError)
 def auth_errors(auth_error):

@@ -3,23 +3,26 @@ from flask import request, _request_ctx_stack
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
+import os
 
 AUTH0_DOMAIN = 'fsnd-yatagarsu.us.auth0.com'
-ALGORITHMS = ['RS256']
-API_AUDIENCE = 'coffee'
+ALGORITHMS = [os.getenv('ALGORITHMS', 'RS256')]
+API_AUDIENCE = os.getenv('API_AUDIENCE', 'coffee')
 
-## AuthError Exception
+# AuthError Exception
 '''
 AuthError Exception
 A standardized way to communicate auth failure modes
 '''
+
+
 class AuthError(Exception):
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
 
 
-## Auth Header
+# Auth Header
 def get_token_auth_header():
     auth = request.headers.get('Authorization', None)
 
@@ -30,7 +33,6 @@ def get_token_auth_header():
         }, 401)
 
     auth_parts = auth.split(' ')
-  
     if auth_parts[0].lower() != 'bearer':
         raise AuthError({
             'code': 'invalid_header',
@@ -48,7 +50,8 @@ def get_token_auth_header():
             'description': 'Authorization header is malformated'
         }, 401)
     else:
-        return auth_parts[1] #Toekn value
+        return auth_parts[1]
+        # Toekn value
 
 
 def check_permissions(permission, payload):
@@ -63,15 +66,17 @@ def check_permissions(permission, payload):
         raise AuthError({
                 'code': 'method_not_allowed',
                 'description': 'permission not allowed or found.'
-            }, 401)
+            }, 403)
     else:
         print(f'yata_true')
         return True
 
 
 '''
-    !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
+    !!NOTE urlopen has a common certificate error described here:
+    https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
 '''
+
 
 def verify_decode_jwt(token):
 
@@ -80,14 +85,14 @@ def verify_decode_jwt(token):
 
     unverified_header = jwt.get_unverified_header(token)
 
-    if 'kid' not in unverified_header: #kid info missing in the header
+    if 'kid' not in unverified_header:
         raise AuthError({
             'code': 'invalid_header',
             'description': 'kid is missing'
         }, 401)
 
     rsa_key = {}
-    for key in jwks['keys']: 
+    for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
             rsa_key = {
                 'kty': key['kty'],
